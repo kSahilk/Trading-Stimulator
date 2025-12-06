@@ -30,7 +30,7 @@ int main()
         }
         else if (query == 2)
         {
-            bkr->lengthoflistofUser();
+            std::cout<<bkr->lengthoflistofUser();
             int userid;
             string userpassword;
             std::cout<<"Enter userid "<<std::endl;
@@ -92,6 +92,5 @@ int main()
         std::cout << "Enter query" << std::endl;
         std::cin >> query;
     }
-    delete bkr;
     return 0;
 }

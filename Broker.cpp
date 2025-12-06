@@ -19,11 +19,17 @@ Broker &Broker::getinstance()
 Broker::~Broker()
 {
     updateDataToDB();
+    std::cout<<"db done"<<std::endl;
+std::cout<<lengthoflistofUser();
     for (auto &p : Broker::_listofuser)
     {
-        delete p.second; // delete the object
+        if(p.second){
+            delete p.second; // delete the object
+        }
     }
-    _listofuser.clear();
+    if(lengthoflistofUser()!=0){
+        _listofuser.clear();
+    }
 }
 
 void Broker::loadDataFromDB()
@@ -79,50 +85,61 @@ void Broker::loadDataFromDB()
 
 void Broker::updateDataToDB()
 {
-    // update all users data to db
-    try
+    sqlite3 *db;
+    sqlite3_stmt *stmt = nullptr;
+    int rc = sqlite3_open("trading_simulator.db", &db);
+    if (rc)
     {
-        sqlite3 *db;
-        sqlite3_stmt *stmt;
-        int rc = sqlite3_open("trading_simulator.db", &db);
-        if (rc)
+        std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+    rc = sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+    for (auto &it : _listofuser)
+    {
+        User *user = it.second;
+        std::string assets;
+        std::string assets_qty;
+        bool first = true;
+        for (auto &stock : user->portfolio)
         {
-            std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
-        }
-        else
-        {
-            std::cout << "Opening db for updating data" << std::endl;
-        }
-        for (auto &it : _listofuser)
-        {
-            User *user = it.second;
-            std::string insertuserdataquery = "INSERT OR REPLACE INTO users (userId, symbol, quantity, balance, pnlOfDay, totalPnl) VALUES (?,?,?,?,?,?);";
-            sqlite3_prepare_v2(db, insertuserdataquery.c_str(), -1, &stmt, NULL);
-            sqlite3_bind_int(stmt, 1, user->getUserId());
-            for (auto &stock : user->portfolio)
+            if (!first)
             {
-                sqlite3_bind_text(stmt, 2, stock.first.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_int(stmt, 3, stock.second);
+                assets.push_back(',');
+                assets_qty.push_back(',');
             }
-            sqlite3_bind_int(stmt, 4, user->getBalance());
-            sqlite3_bind_int(stmt, 5, user->getPnlOfDay());
-            sqlite3_bind_int(stmt, 6, user->getTotalPnl());
-            sqlite3_step(stmt);
-            std::string insertuserpasswordquery = "INSERT OR REPLACE INTO user_passwords (userId, password) VALUES (?,?);";
-            sqlite3_prepare_v2(db, insertuserpasswordquery.c_str(), -1, &stmt, NULL);
-            sqlite3_bind_int(stmt, 1, user->getUserId());
-            // If you want to store password as string, convert it
-            std::string pass = (user->getPassword());
-            sqlite3_bind_text(stmt, 2, pass.c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_step(stmt);
+            assets += stock.first;
+            assets_qty += std::to_string(stock.second);
+            first = false;
         }
-        sqlite3_close(db);
+        std::string query = "INSERT OR REPLACE INTO user (ID, Assets, Assets_Quantity, Balance, PnlOfDay, TotalPnl, Margin) VALUES (?,?,?,?,?,?,?);";
+        rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
+        if (rc != SQLITE_OK)
+        {
+            std::cerr << "Prepare failed: " << sqlite3_errmsg(db) << std::endl;
+            if (stmt) sqlite3_finalize(stmt);
+            stmt = nullptr;
+            continue;
+        }
+        sqlite3_bind_int(stmt, 1, user->getUserId());
+        sqlite3_bind_text(stmt, 2, assets.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, assets_qty.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 4, user->getBalance());
+        sqlite3_bind_int(stmt, 5, user->getPnlOfDay());
+        sqlite3_bind_int(stmt, 6, user->getTotalPnl());
+        sqlite3_bind_int(stmt, 7, 0);
+        rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE)
+        {
+            std::cerr << "Insert failed for user " << user->getUserId() << ": " << sqlite3_errmsg(db) << std::endl;
+        }
+        sqlite3_finalize(stmt);
+        stmt = nullptr;
     }
-    catch (...)
-    {
-        std::cout << "Error in updating database" << std::endl;
-    }
+    sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+    sqlite3_close(db);
+    std::cout << "db is updated" << std::endl;
 }
+
 
 void Broker::createUser()
 {
@@ -148,6 +165,7 @@ bool Broker::checkUserId(int userid)
     return _listofuser.find(userid) != _listofuser.end();
 }
 
-void Broker::lengthoflistofUser(){
-    std::cout<<"Length of list of user is:"<< _listofuser.size()<<std::endl;
+unsigned long Broker::lengthoflistofUser(){
+    std::cout<<"length called inside"<<std::endl;
+return _listofuser.size();
 }
