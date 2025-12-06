@@ -19,6 +19,8 @@ private:
     User* getuserobj(int userid);
     void loadDataFromDB();
     void updateDataToDB();
+    bool checkUserId(int userid) ;
+    void lengthoflistofUser();
 };
 
 #endif // BROKER_H

@@ -14,35 +14,40 @@ int main()
     Broker *bkr = &Broker::getinstance();
     DBManager dbManager("trading_simulator.db");
     std::cout << "Trading Simulator Started" << std::endl;
-    MarketData &md = MarketData::getInstance();
+    // MarketData &md = MarketData::getInstance();
     // Start a single market data thread for all symbols
-    std::thread marketThread(&MarketData::marketdataevent, &md, symbols);
-    marketThread.detach();
+    // std::thread marketThread(&MarketData::marketdataevent, &md, symbols);
+    // marketThread.detach();
 
     int query;
     std::cout << "Enter query" << std::endl;
-    std::cin >> query;
-    while (query != 0)
-    {
-        std::cout << "Enter query" << std::endl;
         std::cin >> query;
+    while (query!=0)
+    {
         if (query == 1)
         {
             bkr->createUser();
         }
         else if (query == 2)
         {
-            bool userlogin = false;
+            bkr->lengthoflistofUser();
             int userid;
-            unsigned long userpassword;
-            std::cin >> userid >> userpassword;
-            User *user = bkr->getuserobj(userid);
-            if (user && user->verifypassword(userpassword))
-            {
-                userlogin = true;
+            string userpassword;
+            std::cout<<"Enter userid "<<std::endl;
+            cin>>userid;
+            User *user=nullptr;
+            if(bkr->checkUserId(userid)){
+                user = bkr->getuserobj(userid);
             }
-            if (userlogin)
+            else{
+                std::cout<<"User not found"<<std::endl;
+                continue;
+            }
+            std::cout<<"Enter password "<<std::endl;
+            std::cin  >> userpassword;
+            if (user->verifypassword(userpassword))
             {
+               
                 std::string symbol, ordermode;
                 int quantity;
                 double price;
@@ -56,12 +61,15 @@ int main()
                     std::cout << "Order placement failed" << std::endl;
                 }
             }
+            else{
+                std::cout<<"Invalid password for user-> "<<userid<<std::endl;
+            } 
         }
         else if (query == 3)
         {
             bool userlogin = false;
             int userid;
-            unsigned long userpassword;
+            string userpassword;
             std::cin >> userid >> userpassword;
             User *user = bkr->getuserobj(userid);
             if (user && user->verifypassword(userpassword))
@@ -81,6 +89,7 @@ int main()
         {
             std::cout << "Invalid Input" << std::endl;
         }
+        std::cout << "Enter query" << std::endl;
         std::cin >> query;
     }
     delete bkr;

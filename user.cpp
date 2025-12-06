@@ -2,25 +2,29 @@
 #include "marketData.h"
 #include <algorithm>
 #include <cstdlib>
+// #include<iostea
 
-User::User(int id) : _userId(id), _password(0), _balance(0), _pnlOfDay(0), _totalPnl(0), _margin(0) {}
+User::User(int id) : _userId(id), _password(""), _balance(0), _pnlOfDay(0), _totalPnl(0), _margin(0) {
+    std::cout<<"construcotr done"<<std::endl;
+}
+
 
 short int User::getUserId() const { return _userId; }
 unsigned long User::getBalance() const { return _balance; }
 unsigned long User::getPnlOfDay() const { return _pnlOfDay; }
 unsigned long User::getTotalPnl() const { return _totalPnl; }
-unsigned long User::getPassword() const { return _password; }
+string User::getPassword() const { return _password; }
 
 void User::addBalance(unsigned long balance) { _balance += balance; }
 void User::setPnlOfDay(unsigned long pnl) { _pnlOfDay = pnl; }
 void User::setTotalPnl(unsigned long pnl) { _totalPnl = pnl; }
 
-bool User::setpassword(unsigned long password) {
+void User::setpassword(std::string password) {
     _password = password;
-    return true;
+    std::cout<<"Password setted";
 }
 
-bool User::verifypassword(unsigned long password) {
+bool User::verifypassword(string password) {
     return _password == password;
 }
 

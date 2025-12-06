@@ -66,7 +66,7 @@ void Broker::loadDataFromDB()
             std::string password = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
             if (_listofuser.find(userid) != _listofuser.end())
             {
-                _listofuser[userid]->setpassword(std::stoul(password));
+                _listofuser[userid]->setpassword(password);
             }
         }
         sqlite3_close(db);
@@ -112,7 +112,8 @@ void Broker::updateDataToDB()
             sqlite3_prepare_v2(db, insertuserpasswordquery.c_str(), -1, &stmt, NULL);
             sqlite3_bind_int(stmt, 1, user->getUserId());
             // If you want to store password as string, convert it
-            sqlite3_bind_text(stmt, 2, std::to_string(user->getPassword()).c_str(), -1, SQLITE_STATIC);
+            std::string pass = (user->getPassword());
+            sqlite3_bind_text(stmt, 2, pass.c_str(), -1, SQLITE_TRANSIENT);
             sqlite3_step(stmt);
         }
         sqlite3_close(db);
@@ -126,8 +127,13 @@ void Broker::updateDataToDB()
 void Broker::createUser()
 {
     _totalusers++;
+    string password;
+    std::cout << "Enter password for new user: ";
+    cin >> password;
     User *user = new User(_totalusers);
+    user->setpassword(password);
     _listofuser[_totalusers] = user;
+    std::cout << "User Created Succssfully" << std::endl;
 }
 
 User *Broker::getuserobj(int userid)
@@ -135,4 +141,13 @@ User *Broker::getuserobj(int userid)
     if (_listofuser.find(userid) != _listofuser.end())
         return _listofuser[userid];
     return nullptr;
+}
+
+bool Broker::checkUserId(int userid)
+{
+    return _listofuser.find(userid) != _listofuser.end();
+}
+
+void Broker::lengthoflistofUser(){
+    std::cout<<"Length of list of user is:"<< _listofuser.size()<<std::endl;
 }
