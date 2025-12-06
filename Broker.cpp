@@ -19,11 +19,17 @@ Broker &Broker::getinstance()
 Broker::~Broker()
 {
     updateDataToDB();
+    std::cout<<"db done"<<std::endl;
+std::cout<<lengthoflistofUser();
     for (auto &p : Broker::_listofuser)
     {
-        delete p.second; // delete the object
+        if(p.second){
+            delete p.second; // delete the object
+        }
     }
-    _listofuser.clear();
+    if(lengthoflistofUser()!=0){
+        _listofuser.clear();
+    }
 }
 
 void Broker::loadDataFromDB()
@@ -96,7 +102,7 @@ void Broker::updateDataToDB()
         for (auto &it : _listofuser)
         {
             User *user = it.second;
-            std::string insertuserdataquery = "INSERT OR REPLACE INTO users (userId, symbol, quantity, balance, pnlOfDay, totalPnl) VALUES (?,?,?,?,?,?);";
+            std::string insertuserdataquery = "INSERT OR REPLACE INTO user (userId, symbol, quantity, balance, pnlOfDay, totalPnl) VALUES (?,?,?,?,?,?);";
             sqlite3_prepare_v2(db, insertuserdataquery.c_str(), -1, &stmt, NULL);
             sqlite3_bind_int(stmt, 1, user->getUserId());
             for (auto &stock : user->portfolio)
@@ -108,15 +114,9 @@ void Broker::updateDataToDB()
             sqlite3_bind_int(stmt, 5, user->getPnlOfDay());
             sqlite3_bind_int(stmt, 6, user->getTotalPnl());
             sqlite3_step(stmt);
-            std::string insertuserpasswordquery = "INSERT OR REPLACE INTO user_passwords (userId, password) VALUES (?,?);";
-            sqlite3_prepare_v2(db, insertuserpasswordquery.c_str(), -1, &stmt, NULL);
-            sqlite3_bind_int(stmt, 1, user->getUserId());
-            // If you want to store password as string, convert it
-            std::string pass = (user->getPassword());
-            sqlite3_bind_text(stmt, 2, pass.c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_step(stmt);
         }
         sqlite3_close(db);
+        std::cout<<"db is updated"<<std::endl;
     }
     catch (...)
     {
@@ -148,6 +148,7 @@ bool Broker::checkUserId(int userid)
     return _listofuser.find(userid) != _listofuser.end();
 }
 
-void Broker::lengthoflistofUser(){
-    std::cout<<"Length of list of user is:"<< _listofuser.size()<<std::endl;
+unsigned long Broker::lengthoflistofUser(){
+    std::cout<<"length called inside"<<std::endl;
+return _listofuser.size();
 }

@@ -20,7 +20,7 @@ private:
     void loadDataFromDB();
     void updateDataToDB();
     bool checkUserId(int userid) ;
-    void lengthoflistofUser();
+    unsigned long lengthoflistofUser();
 };
 
 #endif // BROKER_H
