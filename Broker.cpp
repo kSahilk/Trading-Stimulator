@@ -39,18 +39,16 @@ void Broker::loadDataFromDB()
     {
         sqlite3 *db;
         sqlite3_stmt *stmt;
-        int rc = sqlite3_open("trading_simulator.db", &db);
-        if (rc)
+        if (sqlite3_open("trading_simulator.db", &db))
         {
             std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
-        }
+        } 
         else
         {
             std::cout << "Opened database successfully" << std::endl;
         }
-        // load all data from db
-        const std::string userdataquery = "SELECT * FROM users;";
-        sqlite3_prepare_v2(db, userdataquery.c_str(), -1, &stmt, NULL);
+        const std::string userDataQuery = "SELECT * FROM users;";
+        sqlite3_prepare_v2(db, userDataQuery.c_str(), -1, &stmt, NULL);
         while (sqlite3_step(stmt) == SQLITE_ROW)
         {
             User *user = new User(sqlite3_column_int(stmt, 0));
@@ -64,8 +62,8 @@ void Broker::loadDataFromDB()
             user->setTotalPnl(sqlite3_column_int(stmt, 5));
             _listofuser[sqlite3_column_int(stmt, 0)] = user;
         }
-        const std::string userpasswordquery = "SELECT * FROM user_passwords;";
-        sqlite3_prepare_v2(db, userpasswordquery.c_str(), -1, &stmt, NULL);
+        const std::string userPasswordQuery = "SELECT * FROM user_passwords;";
+        sqlite3_prepare_v2(db, userPasswordQuery.c_str(), -1, &stmt, NULL);
         while (sqlite3_step(stmt) == SQLITE_ROW)
         {
             int userid = sqlite3_column_int(stmt, 0);
@@ -147,6 +145,7 @@ void Broker::createUser()
     string password;
     std::cout << "Enter password for new user: ";
     cin >> password;
+    cout<<"Total users inside create user "<<_totalusers<<endl;
     User *user = new User(_totalusers);
     user->setpassword(password);
     _listofuser[_totalusers] = user;

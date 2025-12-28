@@ -9,15 +9,12 @@
 
 int main()
 {
-    std::vector<std::string> symbols = {"BTCUSDT", "ETHUSDT", "AAPL", "IBM"};
-
+    DBManager dbManager("trading_stimulator.db");
     Broker *bkr = &Broker::getinstance();
-    DBManager dbManager("trading_simulator.db");
-    std::cout << "Trading Simulator Started" << std::endl;
-    // MarketData &md = MarketData::getInstance();
+    std::cout << "Trading Stimulator Started" << std::endl;
+    MarketData &md = MarketData::getInstance();
     // Start a single market data thread for all symbols
-    // std::thread marketThread(&MarketData::marketdataevent, &md, symbols);
-    // marketThread.detach();
+    std::thread marketThread(&MarketData::marketdataevent, &md);
 
     int query;
     std::cout << "Enter query" << std::endl;
@@ -51,6 +48,7 @@ int main()
                 std::string symbol, ordermode;
                 int quantity;
                 double price;
+                std::cout << "Enter order details in (symbol quantity price ordermode): ";
                 std::cin >> symbol >> quantity >> price >> ordermode;
                 try
                 {
@@ -62,7 +60,7 @@ int main()
                 }
             }
             else{
-                std::cout<<"Invalid password for user-> "<<userid<<std::endl;
+                std::cout<<"Invalid password for user-> "<< userid <<std::endl;
             } 
         }
         else if (query == 3)
@@ -92,5 +90,6 @@ int main()
         std::cout << "Enter query" << std::endl;
         std::cin >> query;
     }
+    marketThread.join();
     return 0;
 }
