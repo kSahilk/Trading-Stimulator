@@ -4,6 +4,7 @@ DBManager::DBManager(const std::string& dbName) {
     if (sqlite3_open(dbName.c_str(), &DB)) {
         std::cerr << "Error opening DB: " << sqlite3_errmsg(DB) << std::endl;
         DB = nullptr;
+        return;
     }
     createTables();
     std::cout << "Database initialized successfully!" << std::endl;
@@ -14,7 +15,6 @@ DBManager::~DBManager() {
 }
 
 void DBManager::createTables() {
-    if (!DB) return;
 
     std::string userTable = "CREATE TABLE IF NOT EXISTS user ("
                             "_userId SMALLINT PRIMARY KEY, "
@@ -23,8 +23,7 @@ void DBManager::createTables() {
                             "_pnlOfDay UNSIGNED BIGINT DEFAULT 0, "
                             "_totalPnl UNSIGNED BIGINT DEFAULT 0, "
                             "_margin UNSIGNED BIGINT DEFAULT 0, "
-                            "portfolio TEXT, "
-                            "userPasswordMap TEXT);";
+                            "portfolio TEXT);"; 
 
     std::string tradesTable = "CREATE TABLE IF NOT EXISTS trades ("
                               "TradeID INTEGER PRIMARY KEY AUTOINCREMENT, "

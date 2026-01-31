@@ -10,7 +10,7 @@
 int main()
 {
     DBManager dbManager("trading_stimulator.db");
-    Broker *bkr = &Broker::getinstance();
+    Broker *broker = &Broker::getinstance();
     std::cout << "Trading Stimulator Started" << std::endl;
     MarketData &md = MarketData::getInstance();
     // Start a single market data thread for all symbols
@@ -18,33 +18,36 @@ int main()
 
     int query;
     std::cout << "Enter query" << std::endl;
-        std::cin >> query;
+    std::cout << "  1. Create New User" << std::endl;
+    std::cout << "  2. Place Order" << std::endl;
+    std::cout << "  3. View Portfolio" << std::endl;
+    std::cout << "  0. Exit" << std::endl;
+    std::cin >> query;
     while (query!=0)
     {
         if (query == 1)
         {
-            bkr->createUser();
+            broker->createUser();
         }
         else if (query == 2)
         {
-            std::cout<<bkr->lengthoflistofUser();
+            std::cout<<broker->lengthoflistofUser();
             int userid;
             string userpassword;
             std::cout<<"Enter userid "<<std::endl;
-            cin>>userid;
-            User *user=nullptr;
-            if(bkr->checkUserId(userid)){
-                user = bkr->getuserobj(userid);
+            std::cin >> userid;
+            User *user = nullptr;
+            if (broker->getuserobj(userid)) {
+                user = broker->getuserobj(userid);
             }
-            else{
-                std::cout<<"User not found"<<std::endl;
+            if (user == nullptr) {
+                std::cout << "User not found for user id:" << userid << std::endl;
                 continue;
             }
-            std::cout<<"Enter password "<<std::endl;
-            std::cin  >> userpassword;
+            std::cout << "Enter password " << std::endl;
+            std::cin >> userpassword;
             if (user->verifypassword(userpassword))
             {
-               
                 std::string symbol, ordermode;
                 int quantity;
                 double price;
@@ -59,9 +62,10 @@ int main()
                     std::cout << "Order placement failed" << std::endl;
                 }
             }
-            else{
-                std::cout<<"Invalid password for user-> "<< userid <<std::endl;
-            } 
+            else
+            {
+                std::cout << "Invalid password for user " << userid << std::endl;
+            }
         }
         else if (query == 3)
         {
@@ -69,7 +73,7 @@ int main()
             int userid;
             string userpassword;
             std::cin >> userid >> userpassword;
-            User *user = bkr->getuserobj(userid);
+            User *user = broker->getuserobj(userid);
             if (user && user->verifypassword(userpassword))
             {
                 userlogin = true;

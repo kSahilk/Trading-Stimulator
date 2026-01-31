@@ -103,6 +103,7 @@ void MarketData::marketdataevent()
                 int quantity       = order["quantity"];
 
                 // 8. Update order book
+                updateStrategy(symbol);
                 if (side == "BUY") {
                     addBuyOrder(symbol, price, quantity);
                 } else if (side == "SELL") {
@@ -172,5 +173,12 @@ void MarketData::updateBuyOrder(const std::string &symbol,int price,int quantity
     buyOrders[symbol].pop();
     if(quantity>0){
         buyOrders[symbol].push({price,quantity});
+    }
+}
+void MarketData::updateStrategy(const std::string& symbolId) {
+    if(subscribers.find(symbolId) != subscribers.end()) {
+        for(auto* strategy : subscribers[symbolId]) {
+            // strategy->marketDataUpdate();
+        }
     }
 }

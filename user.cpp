@@ -41,32 +41,41 @@ void User::addToPortfolio(const string& symbol, int quantity) {
 void User::placeorder(const string& symbol, int quantity, double price, const string& ordermode) {
     auto& market = MarketData::getInstance();
     int totalTradedQty = 0;
-    if (ordermode == "BUY") {
+    if (ordermode == "BUY") 
+    {
         while (quantity > 0) {
             auto bestSell = market.getBestSellOrder(symbol);
-            if (bestSell.first != -1 && price >= bestSell.first && bestSell.second > 0) {
+            if (bestSell.first != -1 && price >= bestSell.first && bestSell.second > 0) 
+            {
                 int tradeQty = min(quantity, bestSell.second);
-                totalTradedQty += tradeQty;
-                addToPortfolio(symbol, tradeQty);
-                market.updateSellOrder(symbol, bestSell.first, bestSell.second - tradeQty);
                 if(_balance < bestSell.first * tradeQty){
                     std::cout<<"Insufficient balance to execute the order"<<std::endl;
                     break;
                 }
                 _balance -= bestSell.first * tradeQty;
+                totalTradedQty += tradeQty;
+                addToPortfolio(symbol, tradeQty);
+                market.updateSellOrder(symbol, bestSell.first, bestSell.second - tradeQty);
                 quantity -= tradeQty;
                 if (quantity == 0) 
                 {
-                    std::cout<<"Order executed completely"<<std::endl;
+                    std::cout<<"Order Executed Completely with tradedQty: "<< totalTradedQty <<std::endl;
                     break;
                 }
             }
-            else{
-                std::cout<<" No more matching orders available"<<std::endl;
+            else
+            {
+                if(totalTradedQty > 0)
+                {
+                    std::cout<<"Order executed partially with traded quantity: "<< totalTradedQty <<std::endl;
+                }
+                else
+                {
+                    std::cout<<"No matching orders available"<<std::endl;
+                }
                 break;
             }
         }
-        std::cout<<"Total quantity traded : "<< totalTradedQty <<std::endl;
     }
     else if (ordermode == "SELL") {
         while (quantity > 0) {
@@ -76,19 +85,25 @@ void User::placeorder(const string& symbol, int quantity, double price, const st
                 totalTradedQty += tradeQty;
                 addToPortfolio(symbol, -tradeQty);
                 market.updateBuyOrder(symbol, bestBuy.first, bestBuy.second - tradeQty);
-                _balance += bestBuy.first * tradeQty;
+                _balance += (bestBuy.first * tradeQty);
                 quantity -= tradeQty;
                 if (quantity == 0) 
                 {
-                    std::cout<<"Order executed completely"<<std::endl;
+                    std::cout<<"Order executed completely with tradedQty: "<< totalTradedQty <<std::endl;
                     break;
                 }
             } else {
-                std::cout<<"No more matching orders available"<<std::endl;
+                if(totalTradedQty > 0)
+                {
+                    std::cout<<"Order executed partially with traded quantity: "<< totalTradedQty <<std::endl;
+                }
+                else
+                {
+                    std::cout<<"No matching orders available"<<std::endl;
+                }
                 break;
             }
         }
-        std::cout<<"Total quantity traded: "<< totalTradedQty <<std::endl;
     }
 }
 

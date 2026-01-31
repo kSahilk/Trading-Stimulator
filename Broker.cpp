@@ -34,7 +34,7 @@ std::cout<<lengthoflistofUser();
 
 void Broker::loadDataFromDB()
 {
-    // load all users from db and populate _listofuser
+    // load all users from db and fill _listofuser
     try
     {
         sqlite3 *db;
@@ -42,10 +42,6 @@ void Broker::loadDataFromDB()
         if (sqlite3_open("trading_simulator.db", &db))
         {
             std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
-        } 
-        else
-        {
-            std::cout << "Opened database successfully" << std::endl;
         }
         const std::string userDataQuery = "SELECT * FROM users;";
         sqlite3_prepare_v2(db, userDataQuery.c_str(), -1, &stmt, NULL);
@@ -145,7 +141,6 @@ void Broker::createUser()
     string password;
     std::cout << "Enter password for new user: ";
     cin >> password;
-    cout<<"Total users inside create user "<<_totalusers<<endl;
     User *user = new User(_totalusers);
     user->setpassword(password);
     _listofuser[_totalusers] = user;
@@ -155,16 +150,14 @@ void Broker::createUser()
 User *Broker::getuserobj(int userid)
 {
     if (_listofuser.find(userid) != _listofuser.end())
+    {
         return _listofuser[userid];
+    }
     return nullptr;
 }
 
-bool Broker::checkUserId(int userid)
+unsigned long Broker::lengthoflistofUser()
 {
-    return _listofuser.find(userid) != _listofuser.end();
-}
-
-unsigned long Broker::lengthoflistofUser(){
-    std::cout<<"length called inside"<<std::endl;
-return _listofuser.size();
+    std::cout << "length called inside" << std::endl;
+    return _listofuser.size();
 }

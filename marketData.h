@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <mutex>
+#include "strategyBase.h"
 
 class MarketData {
 private:
@@ -14,9 +15,11 @@ private:
     std::unordered_map<std::string, std::priority_queue<std::pair<int, int>>> buyOrders;
     std::unordered_map<std::string, std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>>> sellOrders;
     mutable std::mutex orderMutex;
+    std::unordered_map<std::string, std::vector<StrategyBase*>> subscribers;
 public:
     static MarketData& getInstance();
     void marketdataevent();
+    void updateStrategy(const std::string& symbolId);
     void addBuyOrder(const std::string& symbol, int price, int quantity);
     void addSellOrder(const std::string& symbol, int price, int quantity);
     std::pair<int, int> getBestBuyOrder(const std::string& symbol) const;

@@ -18,6 +18,7 @@ set(SOURCES
     marketData.h   # Header for MarketData class
     DBManager.cpp  # Implementation for DBManager class (SQLite operations)
     DBManager.h    # Header for DBManager class
+    strategyBase.h
 )
 
 # Create an executable target from the listed source files
