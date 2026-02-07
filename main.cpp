@@ -6,15 +6,16 @@
 #include "Broker.h"
 #include "marketData.h"
 #include "DBManager.h"
+#include "autoFreezeOrder.h"
 
 int main()
 {
     DBManager dbManager("trading_stimulator.db");
     Broker *broker = &Broker::getinstance();
     std::cout << "Trading Stimulator Started" << std::endl;
-    MarketData &md = MarketData::getInstance();
+    MarketData &MarketInstance = MarketData::getInstance();
     // Start a single market data thread for all symbols
-    std::thread marketThread(&MarketData::marketdataevent, &md);
+    std::thread marketThread(&MarketData::marketdataevent, &MarketInstance);
 
     int query;
     std::cout << "Enter query" << std::endl;
@@ -86,6 +87,16 @@ int main()
                 }
                 std::cout << "balance is: " << user->getBalance() << std::endl;
             }
+        }
+        else if( query == 4)
+        {
+            std::cout<< "Enter details for autoFreezeOrder Stg in format (symbol quantity price exchangeId orderMode) "<<std::endl;
+            std::string symbol, exchangeId, orderMode;
+            long long quantity;
+            double price;
+            std::cin >> symbol >> quantity >> price >> exchangeId >> orderMode;
+            auto *stg = new autoFreezeStrategy(symbol, quantity, price, exchangeId, orderMode);
+            MarketInstance.subscribers[symbol].push_back(stg);
         }
         else
         {

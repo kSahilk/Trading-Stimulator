@@ -19,6 +19,8 @@ set(SOURCES
     DBManager.cpp  # Implementation for DBManager class (SQLite operations)
     DBManager.h    # Header for DBManager class
     strategyBase.h
+    autoFreezeOrder.cpp
+    autoFreezeOrder.h
 )
 
 # Create an executable target from the listed source files
