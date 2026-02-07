@@ -8,14 +8,15 @@ autoFreezeStrategy:: autoFreezeStrategy(std::string symbolId,long long qty, doub
         this->exchangeId = exchangeId;
         this->orderMode = orderMode;
         this->freezeQty = 20;
-        this->SymbolId = symbolId;
+        this->symbolId = symbolId;
+    std::cout<< "Starting auto freeze strategy for " << symbolId << " with quantity " << quantity << " at price " << price << std::endl;
         start();
     }
 void autoFreezeStrategy::onMarketDataUpdate()
 {
-    std::cout<< "Market data update received for " << SymbolId << " in strategy " << strategyId << std::endl;
+    std::cout<< "Market data update received for " << symbolId << " in strategy " << strategyId << std::endl;
 }
 void autoFreezeStrategy::start()
 {
-    std::cout<< "Starting auto freeze strategy for " << SymbolId << " with quantity " << quantity << " at price " << price << std::endl;
+    
 }

@@ -1,12 +1,13 @@
 #include <string>
 #include <unordered_map>
+#include "marketData.h"
 #ifndef STRATEGYBASE_H
 #define STRATEGYBASE_H
 
 class StrategyBase {
 protected:
     std::string strategyId;
-    std::string SymbolId;
+    std::string symbolId;
     long long quantity;
     double price;
     std::string orderMode; 

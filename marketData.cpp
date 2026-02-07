@@ -178,7 +178,7 @@ void MarketData::updateBuyOrder(const std::string &symbol,int price,int quantity
 void MarketData::updateStrategy(const std::string& symbolId) {
     if(subscribers.find(symbolId) != subscribers.end()) {
         for(auto* strategy : subscribers[symbolId]) {
-            // strategy->marketDataUpdate();
+            strategy->onMarketDataUpdate();
         }
     }
 }

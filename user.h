@@ -26,8 +26,7 @@ public:
     void addToPortfolio(const string& symbol, int quantity);
     void  setpassword(string password);
     bool verifypassword(string password);
-    void placeorder(const string& symbol, int quantity, double price, const string& ordermode);
-    void updateUser(unsigned long balance, unsigned long pnlOfDay, unsigned long totalPnl, unsigned long margin);
+    void updateUser(double price, int quantity, const string& symbol) ;
     unsigned long getPnlOfDay() const;
     unsigned long getTotalPnl() const;
     string getPassword() const;

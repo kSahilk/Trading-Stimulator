@@ -21,6 +21,7 @@ set(SOURCES
     strategyBase.h
     autoFreezeOrder.cpp
     autoFreezeOrder.h
+    orderManager.h
 )
 
 # Create an executable target from the listed source files

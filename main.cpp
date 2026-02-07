@@ -7,6 +7,7 @@
 #include "marketData.h"
 #include "DBManager.h"
 #include "autoFreezeOrder.h"
+#include "orderManager.h"
 
 int main()
 {
@@ -17,10 +18,11 @@ int main()
     // Start a single market data thread for all symbols
     std::thread marketThread(&MarketData::marketdataevent, &MarketInstance);
 
+    orderManager om;
     int query;
     std::cout << "Enter query" << std::endl;
     std::cout << "  1. Create New User" << std::endl;
-    std::cout << "  2. Place Order" << std::endl;
+    std::cout << "  2. Place Order (Manual/Strategy)" << std::endl;
     std::cout << "  3. View Portfolio" << std::endl;
     std::cout << "  0. Exit" << std::endl;
     std::cin >> query;
@@ -49,18 +51,53 @@ int main()
             std::cin >> userpassword;
             if (user->verifypassword(userpassword))
             {
-                std::string symbol, ordermode;
-                int quantity;
-                double price;
-                std::cout << "Enter order details in (symbol quantity price ordermode): ";
-                std::cin >> symbol >> quantity >> price >> ordermode;
-                try
+                std::cout << "What would you like to do?" << std::endl;
+                std::cout << "  1. Manual Order" << std::endl;
+                std::cout << "  2. Strategy Order (autoFreeze)" << std::endl;
+                int orderType;
+                std::cin >> orderType;
+
+                if (orderType == 1)
                 {
-                    user->placeorder(symbol, quantity, price, ordermode);
+                    std::string symbol, ordermode;
+                    int quantity;
+                    double price;
+                    std::cout << "Enter order details in (symbol quantity price ordermode): ";
+                    std::cin >> symbol >> quantity >> price >> ordermode;
+                    try
+                    {
+                        OrderResult result = om.placeOrder(*user, symbol, quantity, price, ordermode);
+                        if (result.wasExecuted && result.executedQty > 0)
+                        {
+                            user->updateUser(result.executedPrice, result.executedQty, symbol);
+                        }
+                    }
+                    catch (...)
+                    {
+                        std::cout << "Order placement failed" << std::endl;
+                    }
                 }
-                catch (...)
+                else if (orderType == 2)
                 {
-                    std::cout << "Order placement failed" << std::endl;
+                    std::cout << "Enter details for autoFreezeOrder Strategy in format (symbol quantity price exchangeId orderMode): " << std::endl;
+                    std::string symbol, exchangeId, orderMode;
+                    long long quantity;
+                    double price;
+                    std::cin >> symbol >> quantity >> price >> exchangeId >> orderMode;
+                    try
+                    {
+                        auto *stg = new autoFreezeStrategy(symbol, quantity, price, exchangeId, orderMode);
+                        MarketInstance.subscribers[symbol].push_back(stg);
+                        std::cout << "Strategy Order created successfully" << std::endl;
+                    }
+                    catch (...)
+                    {
+                        std::cout << "Strategy Order creation failed" << std::endl;
+                    }
+                }
+                else
+                {
+                    std::cout << "Invalid option" << std::endl;
                 }
             }
             else
@@ -87,16 +124,6 @@ int main()
                 }
                 std::cout << "balance is: " << user->getBalance() << std::endl;
             }
-        }
-        else if( query == 4)
-        {
-            std::cout<< "Enter details for autoFreezeOrder Stg in format (symbol quantity price exchangeId orderMode) "<<std::endl;
-            std::string symbol, exchangeId, orderMode;
-            long long quantity;
-            double price;
-            std::cin >> symbol >> quantity >> price >> exchangeId >> orderMode;
-            auto *stg = new autoFreezeStrategy(symbol, quantity, price, exchangeId, orderMode);
-            MarketInstance.subscribers[symbol].push_back(stg);
         }
         else
         {

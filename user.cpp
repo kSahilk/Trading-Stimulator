@@ -38,80 +38,11 @@ void User::addToPortfolio(const string& symbol, int quantity) {
     portfolio.push_back({symbol, quantity});
 }
 
-void User::placeorder(const string& symbol, int quantity, double price, const string& ordermode) {
-    auto& market = MarketData::getInstance();
-    int totalTradedQty = 0;
-    if (ordermode == "BUY") 
-    {
-        while (quantity > 0) {
-            auto bestSell = market.getBestSellOrder(symbol);
-            if (bestSell.first != -1 && price >= bestSell.first && bestSell.second > 0) 
-            {
-                int tradeQty = min(quantity, bestSell.second);
-                if(_balance < bestSell.first * tradeQty){
-                    std::cout<<"Insufficient balance to execute the order"<<std::endl;
-                    break;
-                }
-                _balance -= bestSell.first * tradeQty;
-                totalTradedQty += tradeQty;
-                addToPortfolio(symbol, tradeQty);
-                market.updateSellOrder(symbol, bestSell.first, bestSell.second - tradeQty);
-                quantity -= tradeQty;
-                if (quantity == 0) 
-                {
-                    std::cout<<"Order Executed Completely with tradedQty: "<< totalTradedQty <<std::endl;
-                    break;
-                }
-            }
-            else
-            {
-                if(totalTradedQty > 0)
-                {
-                    std::cout<<"Order executed partially with traded quantity: "<< totalTradedQty <<std::endl;
-                }
-                else
-                {
-                    std::cout<<"No matching orders available"<<std::endl;
-                }
-                break;
-            }
-        }
-    }
-    else if (ordermode == "SELL") {
-        while (quantity > 0) {
-            auto bestBuy = market.getBestBuyOrder(symbol);
-            if (bestBuy.first != -1 && price <= bestBuy.first && bestBuy.second > 0) {
-                int tradeQty = min(quantity, bestBuy.second);
-                totalTradedQty += tradeQty;
-                addToPortfolio(symbol, -tradeQty);
-                market.updateBuyOrder(symbol, bestBuy.first, bestBuy.second - tradeQty);
-                _balance += (bestBuy.first * tradeQty);
-                quantity -= tradeQty;
-                if (quantity == 0) 
-                {
-                    std::cout<<"Order executed completely with tradedQty: "<< totalTradedQty <<std::endl;
-                    break;
-                }
-            } else {
-                if(totalTradedQty > 0)
-                {
-                    std::cout<<"Order executed partially with traded quantity: "<< totalTradedQty <<std::endl;
-                }
-                else
-                {
-                    std::cout<<"No matching orders available"<<std::endl;
-                }
-                break;
-            }
-        }
-    }
-}
-
-void User::updateUser(unsigned long balance, unsigned long pnlOfDay, unsigned long totalPnl, unsigned long margin) {
-    _balance = balance;
-    _pnlOfDay = pnlOfDay;
-    _totalPnl = totalPnl;
-    _margin = margin;
+void User::updateUser(double price, int quantity, const string& symbol) {
+    addBalance(-(price * quantity));
+    addToPortfolio(symbol, quantity);
+    setPnlOfDay(_pnlOfDay + (price * quantity));
+    setTotalPnl(_totalPnl + (price * quantity));
 }
 
 void User::addToPortfoliofromDB(const string &text) {
