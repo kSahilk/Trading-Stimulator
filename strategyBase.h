@@ -19,6 +19,7 @@ public:
     StrategyBase() : strategyId(generateStgId()), isActive(true), tradedQty(0) {}
     virtual void onMarketDataUpdate() = 0;
     virtual void start() = 0;
+    virtual void processStrategy()=0;
     virtual ~StrategyBase() {}
     static std::string generateStgId() {
         static int counter = 0;

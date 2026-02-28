@@ -22,8 +22,8 @@ private:
     void updateStrategy(const std::string& symbolId);
     void addBuyOrder(const std::string& symbol, int price, int quantity);
     void addSellOrder(const std::string& symbol, int price, int quantity);
-    std::pair<int, int> getBestBuyOrder(const std::string& symbol) const;
-    std::pair<int, int> getBestSellOrder(const std::string& symbol) const;
+    std::pair<long long , long long> getBestBuyOrder(const std::string& symbol) const;
+    std::pair<long long , long long> getBestSellOrder(const std::string& symbol) const;
     void updateSellOrder(const std::string &symbol,int price,int quantity);
     void updateBuyOrder(const std::string &symbol,int price,int quantity);
     const std::unordered_map<std::string, std::priority_queue<std::pair<int, int>>>& getBuyOrders() const;

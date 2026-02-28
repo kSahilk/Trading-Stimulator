@@ -18,7 +18,6 @@ int main()
     // Start a single market data thread for all symbols
     std::thread marketThread(&MarketData::marketdataevent, &MarketInstance);
 
-    orderManager om;
     int query;
     std::cout << "Enter query" << std::endl;
     std::cout << "  1. Create New User" << std::endl;
@@ -66,15 +65,25 @@ int main()
                     std::cin >> symbol >> quantity >> price >> ordermode;
                     try
                     {
-                        OrderResult result = om.placeOrder(*user, symbol, quantity, price, ordermode);
-                        if (result.wasExecuted && result.executedQty > 0)
+                        singleOrder* order = new singleOrder();
+                        order->orderMode = ordermode;
+                        order->price = price;
+                        order->symbol = symbol;
+                        order->totalQuantity = quantity;
+                        bool success = order->placeOrder();
+                        if (success)
                         {
-                            user->updateUser(result.executedPrice, result.executedQty, symbol);
+                            std::cout << "Order placed successfully\n";
+                            // user updates will be handled after receiving order confirmation elsewhere
+                        }
+                        else
+                        {
+                            std::cout << "Order could not be executed\n";
                         }
                     }
                     catch (...)
                     {
-                        std::cout << "Order placement failed" << std::endl;
+                        std::cout << "There is some error in placing order" << std::endl;
                     }
                 }
                 else if (orderType == 2)

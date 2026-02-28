@@ -132,7 +132,7 @@ void MarketData::addSellOrder(const std::string &symbol, int price, int quantity
     sellOrders[symbol].push({price, quantity});
 }
 
-std::pair<int, int> MarketData::getBestBuyOrder(const std::string &symbol) const
+std::pair<long long, long long > MarketData::getBestBuyOrder(const std::string &symbol) const
 {
     std::lock_guard<std::mutex> lock(orderMutex);
     if (buyOrders.count(symbol) == 0 || buyOrders.at(symbol).empty())
@@ -142,7 +142,7 @@ std::pair<int, int> MarketData::getBestBuyOrder(const std::string &symbol) const
     return buyOrders.at(symbol).top();
 }
 
-std::pair<int, int> MarketData::getBestSellOrder(const std::string &symbol) const
+std::pair<long long, long long> MarketData::getBestSellOrder(const std::string &symbol) const
 {
     std::lock_guard<std::mutex> lock(orderMutex);
     if (sellOrders.count(symbol) == 0 || sellOrders.at(symbol).empty())
